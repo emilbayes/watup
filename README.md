@@ -1,0 +1,3 @@
+```
+cat example.watup | ./bin -
+```

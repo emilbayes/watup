@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+var path = require('path')
+var fs = require('fs')
+var macros = require('.')
+
+var file
+if (process.argv[2] === '-') {
+  file = process.stdin
+} else {
+  file = fs.createReadStream(path.join(process.cwd(), process.argv[2]))
+}
+
+var tokenizer = require('wat-tokenizer')()
+
+file.on('data', d => tokenizer.update(d)).on('end', function () {
+  console.log(macros(tokenizer.final()))
+})

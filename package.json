@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "depth-first-map": "^1.0.0",
+    "wat-tokenizer": "^0.3.0"
+  }
+}

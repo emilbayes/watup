@@ -1,0 +1,43 @@
+(macro i32.add! ($x $y) (set_local $x (i32.add (get_local $x) (get_local $y))))
+(macro i32.xor! ($x $y) (set_local $x (i32.add (get_local $x) (get_local $y))))
+(macro i32.rotl! ($x $n) (set_local $x (i32.rotl (get_local $x) (i32.const $n))))
+
+(define #FIRST 16)
+(define #SECOND 12)
+(define #THIRD 8)
+(define #FOURTH 7)
+
+(macro i32.quarterround ($a $b $c $d)
+  (i32.add! $a $b)
+  (i32.xor! $d $a)
+  (i32.rotl! $d #FIRST)
+
+  (i32.add! $c $d)
+  (i32.xor! $b $c)
+  (i32.rotl! $b #SECOND)
+
+  (i32.add! $a $b)
+  (i32.xor! $d $a)
+  (i32.rotl! $d #THIRD)
+
+  (i32.add! $c $d)
+  (i32.xor! $b $c)
+  (i32.rotl! $b #FOURTH))
+
+
+(module
+  (memory (export "memory") 1)
+
+  (func $hchacha
+    (param $x i32)
+    (param $y i32)
+    (result i32)
+
+    (i32.quarterround $x0 $x4 $x8 $x12)
+    (i32.quarterround $x1 $x5 $x9 $x13)
+    (i32.quarterround $x2 $x6 $x10 $x14)
+    (i32.quarterround $x3 $x7 $x11 $x15)
+    (i32.quarterround $x0 $x5 $x10 $x15)
+    (i32.quarterround $x1 $x6 $x11 $x12)
+    (i32.quarterround $x2 $x7 $x8 $x13)
+    (i32.quarterround $x3 $x4 $x9 $x14)))
