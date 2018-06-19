@@ -1,4 +1,5 @@
 var dfs = require('depth-first-map')
+var env = require('./env')
 
 function evaluate (ast, env) {
   return dfs(ast, function (elm, i) {
@@ -10,7 +11,8 @@ function evaluate (ast, env) {
       var name = this[2]
       var params = this[4]
       var body = this.slice(6)
-      env.macros.set(name.toString(), {
+      env.set(name.toString(), {
+        type: 'macro',
         params: params,
         body: body
       })
@@ -22,19 +24,19 @@ function evaluate (ast, env) {
       var name = this[2]
       var body = this.slice(4)
 
-      env.definitions.set(name.toString(), {
+      env.set(name.toString(), {
+        type: 'definition',
         body: body
       })
 
       return dfs.drop
     }
 
-    if (env.definitions.has(elm.toString())) {
-      return dfs.spread(env.definitions.get(elm.toString()).body)
-    }
-
-    if (env.macros.has(elm[0].toString())) {
-      return dfs.spread(applyMacro(elm, env.macros.get(elm[0].toString())))
+    if (v = env.get(elm.toString())) {
+      switch(v.type) {
+        case 'definition': return dfs.spread(v.body)
+        case 'macro': return dfs.spread(applyMacro(this, v))
+      }
     }
 
     return elm
@@ -77,10 +79,7 @@ function stringify (ast) {
 }
 
 module.exports = function (ast) {
-  var mappedSource = evaluate(ast, {
-    macros: new Map(),
-    definitions: new Map()
-  })
+  var mappedSource = evaluate(ast, env.create())
 
   return stringify(mappedSource)
 }
