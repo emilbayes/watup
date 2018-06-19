@@ -5,6 +5,7 @@ var sm = env.create()
 
 assert(sm.set('hello', 'world') === sm)
 assert(sm.set('other', true) === sm)
+assert(sm.get('hi') === null)
 assert(sm.get('hello') === 'world')
 var sm2 = sm.create()
 var v = {world: true}
